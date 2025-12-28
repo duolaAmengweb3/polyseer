@@ -21,7 +21,6 @@ export async function planAgent(question: string): Promise<Plan> {
   const { object } = await generateObject({
     model: getModel(),
     schema: PlanSchema,
-    mode: 'json',
     system: `You are the Planner. Break the forecasting question into causal pathways and research directions. Focus on WHAT COULD CAUSE the outcome, not what the final state looks like. Always respond with valid JSON matching the required schema.`,
     prompt: `Question: ${question}
 

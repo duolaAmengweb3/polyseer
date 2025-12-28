@@ -68,13 +68,6 @@ function ValyuOAuthCompleteContent() {
         // Success - redirect to home
         setStatus('success');
 
-        // Track successful auth
-        if (typeof window !== 'undefined') {
-          import('@vercel/analytics').then(({ track }) => {
-            track('Sign In Success', { method: 'valyu' });
-          });
-        }
-
         // Small delay to show success state, then redirect
         setTimeout(() => {
           router.push('/');
@@ -84,13 +77,6 @@ function ValyuOAuthCompleteContent() {
         setStatus('error');
         const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
         setErrorMessage(errMsg);
-
-        // Track auth error
-        if (typeof window !== 'undefined') {
-          import('@vercel/analytics').then(({ track }) => {
-            track('Sign In Error', { method: 'valyu', error: errMsg });
-          });
-        }
 
         // Clean up PKCE state on error
         clearPKCEState();

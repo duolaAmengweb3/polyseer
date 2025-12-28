@@ -24,7 +24,6 @@ export async function generateDrivers(marketData: MarketData): Promise<string[]>
     const result = await generateObject({
       model: getModelSmall(),
       schema: DriversSchema,
-      mode: 'json',
       system: '你是一位专业分析师。识别最可能影响这个预测市场结果的关键因素。请用中文回答，并返回有效的 JSON。',
       prompt: `分析这个预测市场并识别 3-5 个可能影响结果的关键驱动因素：
 

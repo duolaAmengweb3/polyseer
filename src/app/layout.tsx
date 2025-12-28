@@ -4,7 +4,6 @@ import "./globals.css";
 import Header from "@/components/header";
 import { Providers } from "@/components/providers";
 import { AuthInitializer } from "@/components/auth-initializer";
-import { Analytics } from '@vercel/analytics/next';
 import { MigrationBanner } from "@/components/migration-banner";
 
 const inter = Inter({
@@ -140,7 +139,6 @@ export default function RootLayout({
             </div>
           </AuthInitializer>
         </Providers>
-        <Analytics />
       </body>
     </html>
   );

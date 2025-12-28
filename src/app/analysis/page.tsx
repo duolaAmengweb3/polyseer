@@ -220,17 +220,6 @@ function AnalysisContent() {
       return;
     }
 
-    // Track URL entered event
-    if (typeof window !== 'undefined') {
-      import('@vercel/analytics').then(({ track }) => {
-        track('Analysis Started', {
-          url: url,
-          identifier: identifier,
-          platform: platform,
-        });
-      });
-    }
-
     // 简化版本 - 无需认证
     fetch('/api/forecast', {
       method: 'POST',
@@ -309,16 +298,6 @@ function AnalysisContent() {
 
     if (event.type === 'error') {
       setError(event.error || '发生未知错误');
-      
-      // Track analysis errors
-      if (typeof window !== 'undefined') {
-        import('@vercel/analytics').then(({ track }) => {
-          track('Analysis Error', {
-            error: event.error || '未知错误',
-            url: url,
-          });
-        });
-      }
       return;
     }
 
@@ -327,20 +306,6 @@ function AnalysisContent() {
       setIsComplete(true);
       // Mark all steps as complete
       setSteps(prev => prev.map(step => ({ ...step, status: 'complete' as const })));
-      
-      // Track report completion event
-      if (typeof window !== 'undefined' && event.forecast) {
-        import('@vercel/analytics').then(({ track }) => {
-          track('Report Completed', {
-            url: url,
-            identifier: extractIdentifier(url || ''),
-            platform: detectPlatform(url || ''),
-            probability: event.forecast?.pNeutral || 0.5,
-            confidence: Math.abs((event.forecast?.pNeutral || 0.5) - 0.5) * 200,
-            evidenceCount: event.forecast?.evidenceInfluence?.length || 0
-          });
-        });
-      }
       return;
     }
 

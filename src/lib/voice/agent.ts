@@ -99,23 +99,6 @@ export async function runVoiceAgentCall(opts: OutboundCallOptions) {
     },
   };
 
-  // Add before your API call in agent.ts
-  console.log('🔍 Debug info:');
-  console.log('Agent ID:', agent_id);
-  console.log('Phone Number ID:', agent_phone_number_id);
-  console.log('API Key prefix:', apiKey?.substring(0, 10) + '...');
-  console.log('Dynamic variables:', payload.conversation_initiation_client_data.dynamic_variables);
-
-  // Also try a simple API test first
-  try {
-    const testResponse = await axios.get('https://api.elevenlabs.io/v1/user', {
-      headers: { "xi-api-key": apiKey }
-    });
-    console.log('✅ API key is valid');
-  } catch (err) {
-    console.log('❌ API key validation failed');
-  }
-
   const res = await axios.post(
     "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
     payload,

@@ -22,7 +22,6 @@ export async function criticAgent(question: string, pro: Evidence[], con: Eviden
     const { object } = await generateObject({
       model: getModel(),
       schema: CritiqueSchema,
-      mode: 'json',
       system: `You are the Skeptic. Analyze evidence and return valid JSON. Always respond with a JSON object containing these exact fields:
 - missing: array of strings (gaps in evidence)
 - duplicationFlags: array of strings (duplicate evidence IDs)

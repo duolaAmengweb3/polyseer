@@ -47,7 +47,6 @@ async function analyzeTopicRelevance(evidence: Evidence[], question: string): Pr
     const { object } = await generateObject({
       model: getModelSmall(),
       schema: RelevanceSchema,
-      mode: 'json',
       system: `You are a relevance analyzer. Determine if evidence items are directly relevant to the prediction question. Always respond with valid JSON.
 
 RELEVANCE CRITERIA:
@@ -113,7 +112,6 @@ async function analyzeNicheAuthority(evidence: Evidence[], question: string): Pr
     const { object } = await generateObject({
       model,
       schema: NicheSchema,
-      mode: 'json',
       system: `You are a domain-savvy assessor. For each evidence item, rate whether the SOURCE appears to be a credible niche/specialist outlet for the TOPIC, not just mainstream brand reputation. Return authority in [0,1]. Always respond with valid JSON.`,
       prompt: `Question: "${question}"
 

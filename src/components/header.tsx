@@ -3,11 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import TelegramBotModal from '@/components/telegram-bot-modal';
-import { ConnectPolymarket } from '@/components/connect-polymarket';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { AuthModal } from '@/components/auth-modal';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
@@ -29,11 +28,7 @@ import {
   ExternalLink,
   Monitor,
   LogOut,
-  Wallet
 } from 'lucide-react';
-import { useWallet } from '@/lib/payment/use-wallet';
-import { PaymentModal } from '@/components/payment-modal';
-import { getRemainingUses } from '@/lib/payment/usage-store';
 
 interface AnalysisSession {
   id: string;
@@ -51,7 +46,6 @@ interface AnalysisSession {
       question?: string;
     };
   };
-  // Legacy support
   polymarket_slug?: string;
   report?: {
     market_question?: string;
@@ -60,7 +54,6 @@ interface AnalysisSession {
   };
 }
 
-// Helper to detect platform from URL
 function getPlatformFromUrl(url: string | undefined | null): 'polymarket' | 'kalshi' | 'unknown' {
   if (!url) return 'unknown';
   if (url.includes('polymarket.com')) return 'polymarket';
@@ -77,24 +70,13 @@ export default function Header() {
   const [sessions, setSessions] = useState<AnalysisSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark' | 'system'>('light');
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [remainingUses, setRemainingUses] = useState(0);
 
   const pathname = usePathname();
   const router = useRouter();
   const isAnalysisPage = pathname === '/analysis';
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
-  const { address: walletAddress, connect: connectWallet } = useWallet();
 
-  // 更新剩余次数
-  useEffect(() => {
-    if (walletAddress) {
-      setRemainingUses(getRemainingUses(walletAddress));
-    }
-  }, [walletAddress, paymentModalOpen]);
-
-  // User is a Valyu user if they have valyu_sub
   const isValyuUser = !!user?.valyu_sub;
   const isDevelopment = process.env.NEXT_PUBLIC_APP_MODE !== 'production';
 
@@ -103,13 +85,11 @@ export default function Header() {
   useEffect(() => {
     setMounted(true);
 
-    // Initialize theme from localStorage or default to light
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
       const themeToApply = savedTheme || 'light';
       setCurrentTheme(themeToApply);
 
-      // Apply the theme class immediately
       const root = window.document.documentElement;
       root.classList.remove('light', 'dark');
 
@@ -122,14 +102,12 @@ export default function Header() {
     }
   }, []);
 
-  // Save theme changes to localStorage
   useEffect(() => {
     if (mounted && typeof window !== 'undefined') {
       localStorage.setItem('theme', currentTheme);
     }
   }, [currentTheme, mounted]);
 
-  // Fetch analysis history when dropdown opens
   const fetchAnalysisHistory = async () => {
     if (!user) return;
 
@@ -166,7 +144,6 @@ export default function Header() {
 
   return (
     <header className='absolute top-0 left-0 right-0 z-50 w-full'>
-      {/* Glass background for analysis page */}
       {isAnalysisPage && (
         <div className='absolute inset-0 bg-black/30 backdrop-blur-md'></div>
       )}
@@ -193,7 +170,6 @@ export default function Header() {
 
           </div>
 
-          {/* Center title for analysis page */}
           {isAnalysisPage && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -236,27 +212,6 @@ export default function Header() {
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
             </a>
-
-            {/* Wallet Button */}
-            {mounted && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPaymentModalOpen(true)}
-                className="gap-2 h-8 bg-gradient-to-br from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 border border-white/20 hover:border-white/30 transition-all text-white/90 hover:text-white drop-shadow-md"
-              >
-                <Wallet className="h-4 w-4" />
-                {walletAddress ? (
-                  <span className="text-xs">
-                    {remainingUses} 次
-                  </span>
-                ) : (
-                  <span className="text-xs">连接钱包</span>
-                )}
-              </Button>
-            )}
-
-            {/* <ConnectPolymarket /> */}
 
             {mounted && user ? (
               <DropdownMenu onOpenChange={(open) => open && fetchAnalysisHistory()}>
@@ -324,9 +279,7 @@ export default function Header() {
                       <div className="max-h-[280px] overflow-y-auto">
                         <div className="p-2 space-y-1.5">
                           {sessions.slice(0, 8).map((session) => {
-                            // Use stored platform or detect from URL
                             const platform = session.platform || getPlatformFromUrl(session.market_url || session.polymarket_slug);
-                            // Get question from various possible fields
                             const question = session.market_question
                               || session.forecast_card?.question
                               || session.forecast_card?.market?.question
@@ -334,7 +287,6 @@ export default function Header() {
                               || session.market_url
                               || session.polymarket_slug
                               || 'Unknown market';
-                            // Get probability from various possible fields
                             const probability = session.p_neutral
                               || session.forecast_card?.pNeutral
                               || session.report?.probability;
@@ -345,7 +297,6 @@ export default function Header() {
                                 className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer group"
                                 onClick={() => handleSessionSelect(session.id)}
                               >
-                                {/* Platform Icon */}
                                 <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-800">
                                   {platform === 'polymarket' ? (
                                     <img
@@ -364,7 +315,6 @@ export default function Header() {
                                   )}
                                 </div>
 
-                                {/* Content */}
                                 <div className="flex-1 min-w-0">
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight">
                                     {question}
@@ -395,7 +345,6 @@ export default function Header() {
                                   </div>
                                 </div>
 
-                                {/* Delete button */}
                                 <div
                                   className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
                                   onClick={(e) => {
@@ -420,7 +369,6 @@ export default function Header() {
                     个人资料
                   </DropdownMenuItem>
 
-                  {/* Valyu Platform link for credit management */}
                   {isValyuUser && (
                     <DropdownMenuItem asChild>
                       <a
@@ -481,12 +429,6 @@ export default function Header() {
                 className='text-white/90 hover:text-white hover:bg-white/10 drop-shadow-md text-base px-3 py-1.5'
                 onClick={() => {
                   setAuthModalOpen(true);
-                  // Track signup button click
-                  if (typeof window !== 'undefined') {
-                    import('@vercel/analytics').then(({ track }) => {
-                      track('Sign In Button Clicked', { location: 'header' });
-                    });
-                  }
                 }}
               >
                 登录
@@ -541,17 +483,6 @@ export default function Header() {
       <AuthModal
         open={authModalOpen}
         onOpenChange={setAuthModalOpen}
-      />
-      <PaymentModal
-        open={paymentModalOpen}
-        onOpenChange={setPaymentModalOpen}
-        walletAddress={walletAddress}
-        onConnectWallet={connectWallet}
-        onPaymentSuccess={() => {
-          if (walletAddress) {
-            setRemainingUses(getRemainingUses(walletAddress));
-          }
-        }}
       />
     </header>
   );
